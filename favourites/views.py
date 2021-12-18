@@ -154,3 +154,26 @@ class MoviesByPlanetView(APIView):
             serializer = ResourceSerializer(movie_object)
             response["results"].append(create_movie_response(serializer.data, movie))
         return JsonResponse(data=response)
+
+
+class FavouriteMovieView(APIView):
+    def get(self, request, **kwargs):
+        swapi_service = SwapiService("films")
+        movie_list = Movie.objects.filter(is_favourite=True)
+        response = {"results": []}
+        for movie_object in movie_list:
+            movie = swapi_service.get_resource_by_id(movie_object.id)
+            serializer = ResourceSerializer(movie_object)
+            response["results"].append(create_movie_response(serializer.data, movie))
+        return JsonResponse(data=response)
+
+class FavouritePlanetView(APIView):
+    def get(self, request, **kwargs):
+        swapi_service = SwapiService("planets")
+        planet_list = Planet.objects.filter(is_favourite=True)
+        response = {"results": []}
+        for planet_object in planet_list:
+            planet = swapi_service.get_resource_by_id(planet_object.id)
+            serializer = ResourceSerializer(planet_object)
+            response["results"].append(create_planet_response(serializer.data, planet))
+        return JsonResponse(data=response)
