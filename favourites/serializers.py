@@ -1,9 +1,14 @@
 from rest_framework import serializers
 
-from favourites.models import AbstractResourceModel
+from favourites.models import Movie, Planet
 
 
-class ResourceSerializer(serializers.ModelSerializer):
+class PlanetSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AbstractResourceModel
+        model = Planet
+        fields = '__all__'
+
+class MovieSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Movie
         fields = '__all__'

@@ -21,7 +21,7 @@ class SwapiService:
     
     def get_all_resources(self, page_number = 1):
         response = requests.get(self.resource_url, params={"page": page_number})
-        return response.json()
+        return response.json(), response.status_code
 
     def get_resource_by_id(self, id):
         if isinstance(id, int) is not True:
@@ -31,7 +31,7 @@ class SwapiService:
             )
         url = self.resource_url + str(id) + '/'
         response = requests.get(url)
-        return response.json()
+        return response.json(), response.status_code
     
     def search(self, search_value, page_number = 1):
         if isinstance(search_value, str) is not True:
@@ -40,4 +40,4 @@ class SwapiService:
                 str(type(search_value))
             )
         response = requests.get(self.resource_url, params={"search": search_value, "page": page_number})
-        return response.json()
+        return response.json(), response.status_code

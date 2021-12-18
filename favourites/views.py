@@ -1,8 +1,9 @@
+import requests
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
 from favourites.models import Movie, Planet
-from favourites.serializers import ResourceSerializer
+from favourites.serializers import MovieSerializer, PlanetSerializer
 from favourites.swapiutils import SwapiService
 
 
@@ -28,32 +29,44 @@ def create_movie_response(serializer_data, swapi_data):
     return response
 
 class SinglePlanetView(APIView):
-    
+    def get(self, request, **kwargs):
+        swapi_service = SwapiService('planets')
+        id = kwargs["id"]
+        swapi_data, status_code = swapi_service.get_resource_by_id(id)
+        if status_code != requests.codes.ok:
+            return JsonResponse(status=status_code, data=swapi_data)
+        planet_object, created = Planet.objects.get_or_create(id = id)
+        serializer = PlanetSerializer(planet_object)
+        response = create_planet_response(serializer.data, swapi_data)
+        return JsonResponse(data=response)
+
+class SinglePlanetFavouritesView(APIView):
     def post(self, request, **kwargs):
         swapi_service = SwapiService('planets')
         id = kwargs["id"]
-        swapi_data = swapi_service.get_resource_by_id(id)
-        if 'detail' in swapi_data.keys():
-            return JsonResponse(status=201, data=swapi_data)
+        swapi_data, status_code = swapi_service.get_resource_by_id(id)
+        if status_code != requests.codes.ok:
+            return JsonResponse(status=status_code, data=swapi_data)
         planet_object, created = Planet.objects.get_or_create(id = id)
-        serializer = ResourceSerializer(planet_object, data=request.data, partial=True)
+        planet_object.is_favourite = not planet_object.is_favourite
+        planet_object.save()
+        return JsonResponse(status=201, data={"detail": "The item was updated successfully."})       
+
+class PlanetCustomNameView(APIView):
+    def post(self, request, **kwargs):
+        swapi_service = SwapiService('planets')
+        id = kwargs["id"]
+        swapi_data, status_code = swapi_service.get_resource_by_id(id)
+        if status_code != requests.codes.ok:
+            return JsonResponse(status=status_code, data=swapi_data)
+        planet_object, created = Planet.objects.get_or_create(id = id)
+        custom_name = request.data.get("custom_name")
+        serializer = PlanetSerializer(planet_object, data={"custom_name": custom_name}, partial=True)
         if serializer.is_valid():
             serializer.save()
             response = create_planet_response(serializer.data, swapi_data)
             return JsonResponse(status=201, data=response)
-        return JsonResponse(status=400, data="wrong parameters")
-    
-    def get(self, request, **kwargs):
-        swapi_service = SwapiService('planets')
-        id = kwargs["id"]
-        swapi_data = swapi_service.get_resource_by_id(id)
-        if 'detail' in swapi_data.keys():
-            return JsonResponse(status=200, data=swapi_data)
-        planet_object, created = Planet.objects.get_or_create(id = id)
-        serializer = ResourceSerializer(planet_object)
-        response = create_planet_response(serializer.data, swapi_data)
-        return JsonResponse(data=response)
-
+        return JsonResponse(status=400, data={"details": "Wrong Parameters"})
 
 class AllPlanetView(APIView):
     def get(self, request):
@@ -62,14 +75,12 @@ class AllPlanetView(APIView):
         if "page" in request.GET.keys():
             page = request.GET.get("page")
         if "search" not in request.GET.keys():
-            swapi_data = swapi_service.get_all_resources(page)
+            swapi_data, status_code = swapi_service.get_all_resources(page)
         else:
             search_value = request.GET.get("search")
-            swapi_data = swapi_service.search(search_value, page)
-        if "detail" in swapi_data.keys():
-            return JsonResponse(status=200, data=swapi_data)
-        if len(swapi_data["results"]) == 0:
-            return JsonResponse(status=200, data=swapi_data)
+            swapi_data, status_code = swapi_service.search(search_value, page)
+        if status_code != requests.codes.ok:
+            return JsonResponse(status=status_code, data=swapi_data)
         response = {}
         response["count"] = swapi_data["count"]
         response["next"] = swapi_data["next"]
@@ -78,36 +89,49 @@ class AllPlanetView(APIView):
         for planet in swapi_data['results']:
             id = int(planet['url'].split('/')[-2])
             planet_object, created = Planet.objects.get_or_create(id = id)
-            serializer = ResourceSerializer(planet_object)
+            serializer = PlanetSerializer(planet_object)
             response["results"].append(create_planet_response(serializer.data, planet))
-        return JsonResponse(data=response)
-            
+        return JsonResponse(data=response)        
 
 class SingleMovieView(APIView):
+    def get(self, request, **kwargs):
+        swapi_service = SwapiService('films')
+        id = kwargs["id"]
+        swapi_data, status_code = swapi_service.get_resource_by_id(id)
+        if status_code != requests.codes.ok:
+            return JsonResponse(status=status_code, data=swapi_data)
+        movie_object, created = Movie.objects.get_or_create(id = id)
+        serializer = MovieSerializer(movie_object)
+        response = create_movie_response(serializer.data, swapi_data)
+        return JsonResponse(data=response)
+
+class SingleMovieFavouriteView(APIView):
+     def post(self, request, **kwargs):
+        swapi_service = SwapiService('films')
+        id = kwargs["id"]
+        swapi_data, status_code = swapi_service.get_resource_by_id(id)
+        if status_code != requests.codes.ok:
+            return JsonResponse(status=status_code, data=swapi_data)
+        movie_object, created = Movie.objects.get_or_create(id = id)
+        movie_object.is_favourite = not movie_object.is_favourite
+        movie_object.save()
+        return JsonResponse(status=201, data={"detail": "The item was updated successfully."})
+
+class MoviesCustomNameView(APIView):
     def post(self, request, **kwargs):
         swapi_service = SwapiService('films')
         id = kwargs["id"]
-        swapi_data = swapi_service.get_resource_by_id(id)
-        if 'detail' in swapi_data.keys():
-            return JsonResponse(status=201, data=swapi_data)
+        swapi_data, status_code = swapi_service.get_resource_by_id(id)
+        if status_code != requests.codes.ok:
+            return JsonResponse(status=status_code, data=swapi_data)
         movie_object, created = Movie.objects.get_or_create(id = id)
-        serializer = ResourceSerializer(movie_object, data=request.data, partial=True)
+        custom_name = request.data.get("custom_name")
+        serializer = MovieSerializer(movie_object, data={"custom_name": custom_name}, partial=True)
         if serializer.is_valid():
             serializer.save()
             response = create_movie_response(serializer.data, swapi_data)
             return JsonResponse(status=201, data=response)
-        return JsonResponse(status=400, data="wrong parameters")
-    
-    def get(self, request, **kwargs):
-        swapi_service = SwapiService('films')
-        id = kwargs["id"]
-        swapi_data = swapi_service.get_resource_by_id(id)
-        if 'detail' in swapi_data.keys():
-            return JsonResponse(status=200, data=swapi_data)
-        movie_object, created = Movie.objects.get_or_create(id = id)
-        serializer = ResourceSerializer(movie_object)
-        response = create_movie_response(serializer.data, swapi_data)
-        return JsonResponse(data=response)
+        return JsonResponse(status=400, data={"details": "Wrong Parameters"})
 
 class AllMoviesView(APIView):
     def get(self, request):
@@ -116,14 +140,12 @@ class AllMoviesView(APIView):
         if "page" in request.GET.keys():
             page = request.GET.get("page")
         if "search" not in request.GET.keys():
-            swapi_data = swapi_service.get_all_resources(page)
+            swapi_data, status_code = swapi_service.get_all_resources(page)
         else:
             search_value = request.GET.get("search")
-            swapi_data = swapi_service.search(search_value, page)
-        if "detail" in swapi_data.keys():
-            return JsonResponse(status=200, data=swapi_data)
-        if len(swapi_data["results"]) == 0:
-            return JsonResponse(status=200, data=swapi_data)
+            swapi_data, status_code = swapi_service.search(search_value, page)
+        if status_code != requests.codes.ok:
+            return JsonResponse(status=status_code, data=swapi_data)
         response = {}
         response["count"] = swapi_data["count"]
         response["next"] = swapi_data["next"]
@@ -132,29 +154,27 @@ class AllMoviesView(APIView):
         for movie in swapi_data['results']:
             id = int(movie['url'].split('/')[-2])
             movie_object, created = Movie.objects.get_or_create(id = id)
-            serializer = ResourceSerializer(movie_object)
+            serializer = MovieSerializer(movie_object)
             response["results"].append(create_movie_response(serializer.data, movie))
         return JsonResponse(data=response)
 
 class MoviesByPlanetView(APIView):
-
     def get(self, request, **kwargs):
         swapi_service_planet = SwapiService("planets")
         id = kwargs["id"]
-        swapi_data = swapi_service_planet.get_resource_by_id(id)
-        if 'detail' in swapi_data.keys():
-            return JsonResponse(status=200, data=swapi_data)
+        swapi_data, status_code = swapi_service_planet.get_resource_by_id(id)
+        if status_code != requests.codes.ok:
+            return JsonResponse(status=status_code, data=swapi_data)
         response = {}
         response["results"] = []
         swapi_service_movie = SwapiService("films")
         for movie_url in swapi_data["films"]:
             id = int(movie_url.split('/')[-2])
-            movie = swapi_service_movie.get_resource_by_id(id)
+            movie, status_code = swapi_service_movie.get_resource_by_id(id)
             movie_object, created = Movie.objects.get_or_create(id = id)
-            serializer = ResourceSerializer(movie_object)
+            serializer = MovieSerializer(movie_object)
             response["results"].append(create_movie_response(serializer.data, movie))
         return JsonResponse(data=response)
-
 
 class FavouriteMovieView(APIView):
     def get(self, request, **kwargs):
@@ -162,8 +182,8 @@ class FavouriteMovieView(APIView):
         movie_list = Movie.objects.filter(is_favourite=True)
         response = {"results": []}
         for movie_object in movie_list:
-            movie = swapi_service.get_resource_by_id(movie_object.id)
-            serializer = ResourceSerializer(movie_object)
+            movie, status_code = swapi_service.get_resource_by_id(movie_object.id)
+            serializer = MovieSerializer(movie_object)
             response["results"].append(create_movie_response(serializer.data, movie))
         return JsonResponse(data=response)
 
@@ -173,7 +193,7 @@ class FavouritePlanetView(APIView):
         planet_list = Planet.objects.filter(is_favourite=True)
         response = {"results": []}
         for planet_object in planet_list:
-            planet = swapi_service.get_resource_by_id(planet_object.id)
-            serializer = ResourceSerializer(planet_object)
+            planet, status_code = swapi_service.get_resource_by_id(planet_object.id)
+            serializer = PlanetSerializer(planet_object)
             response["results"].append(create_planet_response(serializer.data, planet))
         return JsonResponse(data=response)

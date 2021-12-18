@@ -5,8 +5,12 @@ from favourites import views
 
 urlpatterns = [
     path('api/planets/<int:id>', views.SinglePlanetView.as_view()),
+    path('api/planets/<int:id>/favourite', views.SinglePlanetFavouritesView.as_view()),
+    path('api/planets/<int:id>/custom-name', views.PlanetCustomNameView.as_view()),
     path('api/planets/', views.AllPlanetView.as_view()),
     path('api/movies/<int:id>', views.SingleMovieView.as_view()),
+    path('api/movies/<int:id>/favourite', views.SingleMovieFavouriteView.as_view()),
+    path('api/movies/<int:id>/custom-name', views.MoviesCustomNameView.as_view()),
     path('api/movies/', views.AllMoviesView.as_view()),
     path('api/planets/<int:id>/movies/', views.MoviesByPlanetView.as_view()),
     path('api/movies/favourites/', views.FavouriteMovieView.as_view()),

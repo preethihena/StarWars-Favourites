@@ -5,6 +5,9 @@ class AbstractResourceModel(models.Model):
     custom_name = models.CharField(max_length=60, blank=True)
     is_favourite = models.BooleanField(default=False)
     last_updated = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        abstract = True
 
 class Planet(AbstractResourceModel):
     pass
