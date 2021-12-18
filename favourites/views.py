@@ -27,7 +27,6 @@ def create_movie_response(serializer_data, swapi_data):
     response['release_date'] = swapi_data['release_date']
     return response
 
-
 class SinglePlanetView(APIView):
     
     def post(self, request, **kwargs):
@@ -110,7 +109,6 @@ class SingleMovieView(APIView):
         response = create_movie_response(serializer.data, swapi_data)
         return JsonResponse(data=response)
 
-
 class AllMoviesView(APIView):
     def get(self, request):
         swapi_service = SwapiService('films')
@@ -133,6 +131,25 @@ class AllMoviesView(APIView):
         response["results"] = []
         for movie in swapi_data['results']:
             id = int(movie['url'].split('/')[-2])
+            movie_object, created = Movie.objects.get_or_create(id = id)
+            serializer = ResourceSerializer(movie_object)
+            response["results"].append(create_movie_response(serializer.data, movie))
+        return JsonResponse(data=response)
+
+class MoviesByPlanetView(APIView):
+
+    def get(self, request, **kwargs):
+        swapi_service_planet = SwapiService("planets")
+        id = kwargs["id"]
+        swapi_data = swapi_service_planet.get_resource_by_id(id)
+        if 'detail' in swapi_data.keys():
+            return JsonResponse(status=200, data=swapi_data)
+        response = {}
+        response["results"] = []
+        swapi_service_movie = SwapiService("films")
+        for movie_url in swapi_data["films"]:
+            id = int(movie_url.split('/')[-2])
+            movie = swapi_service_movie.get_resource_by_id(id)
             movie_object, created = Movie.objects.get_or_create(id = id)
             serializer = ResourceSerializer(movie_object)
             response["results"].append(create_movie_response(serializer.data, movie))

@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/planets/', views.AllPlanetView.as_view()),
     path('api/movies/<int:id>', views.SingleMovieView.as_view()),
     path('api/movies/', views.AllMoviesView.as_view()),
+    path('api/planets/<int:id>/movies/', views.MoviesByPlanetView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
