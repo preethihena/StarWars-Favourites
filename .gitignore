@@ -1,59 +1,87 @@
-# Packaging
-*.pyc
-__pycache__
-*.egg-info
-/dist/
-/build/
-/node_modules/
-
-# venv
-/bin/
-/lib/
-/share
-/pyvenv.cfg
-/pip-selfcheck.json
-
-# Vagrant
-.vagrant
-
-# Temporary/OS files
-*.swp
-*.swo
-*.*~
-.~lock.*
-*.DS_Store
-.python-version
-
-# IDE files
+# editor files
+.vscode/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+# C extensions
+*.so
+# Distribution / packaging
+.Python
+env/
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+# Translations
+*.mo
+# Mr Developer
+.mr.developer.cfg
 .project
 .pydevproject
-.settings
-.idea
-.vscode
+# Rope
+.ropeproject
+.idea/
+# Django stuff:
+*.log
+*.pot
+# Sphinx documentation
+docs/_build/
+# Back up file
+*~
+#db file
+db.db
+#vim cache
+*swp
+*swo
+#redis dump
+*.rdb
+#*.out
+*.sqlite3
+.python-version
+.DS_Store
+build.txt
+tmp/
+custom_settings.py
+*.zip
 
-# Docs
-/docs/build/*
-/src/oscar/static/
-*.pdf
-TODO
-venv
+data/log/*
+!data/log/.gitkeep
+data/test_case/*
+!data/test_case/.gitkeep
+data/ssl/*
+!data/ssl/.gitkeep
+data/public/upload/*
+!data/public/upload/.gitkeep
+data/public/avatar/*
+!data/public/avatar/default.png
+data/config/*
+!data/config/.gitkeep
 
-# Test files
-.coverage
-.coverage\.*
-.noseids
-coverage.xml
-violations.txt
-nosetests.xml
-/.cache/
-/.pytest_cache/
-/htmlcov/*
-/.tox/*
+http_locations.conf
+https_locations.conf
 
-# Sandbox content
-settings_local.py
-/sandbox/*.sqlite
-/sandbox/assets/
-/sandbox/public/
-/sandbox/whoosh_index/
-/sandbox/logs/
+venv/
+
+# Environment Variables
+.env
+
+# Migration
+migrations
