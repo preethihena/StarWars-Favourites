@@ -8,6 +8,10 @@ from favourites.swapiutils import SwapiService
 
 
 def create_planet_response(serializer_data, swapi_data):
+    """
+    Helper function to create json response for a planet
+    using the data from the db and data from Star wars API
+    """
     response = {}
     response['custom_name'] = serializer_data['custom_name']
     response['is_favourite'] = serializer_data['is_favourite']
@@ -18,6 +22,10 @@ def create_planet_response(serializer_data, swapi_data):
     return response
 
 def create_movie_response(serializer_data, swapi_data):
+    """
+    Helper function to create json response for a movie
+    using the data from the db and data from Star wars API
+    """
     response = {}
     response['custom_name'] = serializer_data['custom_name']
     response['is_favourite'] = serializer_data['is_favourite']
@@ -29,6 +37,10 @@ def create_movie_response(serializer_data, swapi_data):
     return response
 
 class SinglePlanetView(APIView):
+    """
+    API endpoint that retrieves a Planet instance based on id
+    from database and Star wars API.
+    """
     def get(self, request, **kwargs):
         swapi_service = SwapiService('planets')
         id = kwargs["id"]
@@ -41,6 +53,9 @@ class SinglePlanetView(APIView):
         return JsonResponse(data=response)
 
 class SinglePlanetFavouritesView(APIView):
+    """
+    API endpoint that allows to add a Planet as favourite.
+    """
     def post(self, request, **kwargs):
         swapi_service = SwapiService('planets')
         id = kwargs["id"]
@@ -53,6 +68,10 @@ class SinglePlanetFavouritesView(APIView):
         return JsonResponse(status=201, data={"detail": "The item was updated successfully."})       
 
 class PlanetCustomNameView(APIView):
+    """
+    API endpoint that allows to add a custom name
+    to a Planet.
+    """
     def post(self, request, **kwargs):
         swapi_service = SwapiService('planets')
         id = kwargs["id"]
@@ -69,6 +88,10 @@ class PlanetCustomNameView(APIView):
         return JsonResponse(status=400, data={"details": "Wrong Parameters"})
 
 class AllPlanetView(APIView):
+    """
+    API endpoint that allows to get all Planets and search 
+    for Planets based on name. It also allows pagination.
+    """
     def get(self, request):
         swapi_service = SwapiService('planets')
         page = 1
@@ -94,6 +117,10 @@ class AllPlanetView(APIView):
         return JsonResponse(data=response)        
 
 class SingleMovieView(APIView):
+    """
+    API endpoint that retrieves a Movie instance based on id
+    from database and Star wars API.
+    """
     def get(self, request, **kwargs):
         swapi_service = SwapiService('films')
         id = kwargs["id"]
@@ -106,7 +133,10 @@ class SingleMovieView(APIView):
         return JsonResponse(data=response)
 
 class SingleMovieFavouriteView(APIView):
-     def post(self, request, **kwargs):
+    """
+    API endpoint that allows to add a Movie as favourite.
+    """
+    def post(self, request, **kwargs):
         swapi_service = SwapiService('films')
         id = kwargs["id"]
         swapi_data, status_code = swapi_service.get_resource_by_id(id)
@@ -118,6 +148,10 @@ class SingleMovieFavouriteView(APIView):
         return JsonResponse(status=201, data={"detail": "The item was updated successfully."})
 
 class MoviesCustomNameView(APIView):
+    """
+    API endpoint that allows to add a custom name
+    to a Movie.
+    """
     def post(self, request, **kwargs):
         swapi_service = SwapiService('films')
         id = kwargs["id"]
@@ -134,6 +168,10 @@ class MoviesCustomNameView(APIView):
         return JsonResponse(status=400, data={"details": "Wrong Parameters"})
 
 class AllMoviesView(APIView):
+    """
+    API endpoint that allows to get all Movies and search 
+    for movies based on title. It also allows pagination.
+    """
     def get(self, request):
         swapi_service = SwapiService('films')
         page = 1
@@ -159,6 +197,9 @@ class AllMoviesView(APIView):
         return JsonResponse(data=response)
 
 class MoviesByPlanetView(APIView):
+    """
+    API endpoint to retrieve all the Movies of a Planet
+    """
     def get(self, request, **kwargs):
         swapi_service_planet = SwapiService("planets")
         id = kwargs["id"]
@@ -177,6 +218,9 @@ class MoviesByPlanetView(APIView):
         return JsonResponse(data=response)
 
 class FavouriteMovieView(APIView):
+    """
+    API endpoint to retrieve all favourite movies.
+    """
     def get(self, request, **kwargs):
         swapi_service = SwapiService("films")
         movie_list = Movie.objects.filter(is_favourite=True)
@@ -188,6 +232,9 @@ class FavouriteMovieView(APIView):
         return JsonResponse(data=response)
 
 class FavouritePlanetView(APIView):
+    """
+    API endpoint to retrieve all favourite Planets.
+    """
     def get(self, request, **kwargs):
         swapi_service = SwapiService("planets")
         planet_list = Planet.objects.filter(is_favourite=True)
