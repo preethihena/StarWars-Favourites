@@ -105,7 +105,17 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
+In case migrations are not found run:
+```bash
+python manage.py makemigrations favourites
+```
+
 ### Running API
 ```bash
 python manage.py runserver
+```
+
+### Running Tests
+```bash
+python manage.py test
 ```
